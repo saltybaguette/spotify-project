@@ -1,16 +1,25 @@
 
 import {Routes} from "react-router";
+import {useNavigate} from "react-router-dom";
 import {Button, Card, Container, FormControl, InputGroup, Row} from "react-bootstrap";
 import {useState, useEffect} from "react";
+import "../vendors/fontawesome/assets/css/all.css";
+import * as client from "../Login/client";
 
 const client_id = "9dd2432b43834324959223666effbf85";
-const client_secret = "793e4b4811624715b8d40e44fd229c9d";
+const client_secret = client.SPOTIFY_SECRET;
+
 
 function SearchPage() {
+    const navigate = useNavigate();
     const [searchInput, setSearch] = useState("");
     const [accessToken, setAccessToken] = useState("");
     const [albums, setAlbums] = useState([]);
-
+    const [account, setAccount] = useState(null);
+    const fetchAccount = async () => {
+        const account = await client.account();
+        setAccount(account);
+    };
     useEffect(() => {
         var params = {
             method:"POST",
@@ -22,13 +31,23 @@ function SearchPage() {
         fetch('https://accounts.spotify.com/api/token', params)
             .then(result => result.json())
             .then(data => setAccessToken(data.access_token));
+        fetchAccount()
     },[])
+
+
+    function details(id) {
+        navigate("/Details/"+id);
+    }
+
+    const addLikedAlbum = async (albumName) => {
+        await client.addLikedAlbum(account._id, albumName);
+    }
 
     async function search() {
         var params = {
             method:"GET",
             headers: {
-                "Content-Type": "applicaton/json",
+                "Content-Type": "application/json",
                 "Authorization": "Bearer "+accessToken,
             }
         }
@@ -39,12 +58,12 @@ function SearchPage() {
             .then(response => response.json())
             .then(data => {
                 setAlbums(data.items);
-                console.log(data);
             })
     }
 
     return(
         <div className={"App"}>
+
             <Container>
                 <InputGroup className={"mb-3"} size={"lg"}>
                     <FormControl
@@ -65,8 +84,11 @@ function SearchPage() {
                     {albums.map((album, i) => {
                         return (
                             <Card>
-                                <Card.Img src={album.images[0].url}/>
+                                <Card.Img src={album.images[0].url} onClick={() => details(album.id)}/>
                                 <Card.Title>{album.name}</Card.Title>
+                                <Card.Body>
+                                    <i onClick={() => addLikedAlbum(album.name)} className="fa-solid fa-2x fa-circle-plus "></i>
+                                </Card.Body>
                             </Card>
                         )
                     })}

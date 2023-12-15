@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as client from "./client";
-import {FormControl, InputGroup} from "react-bootstrap";
+import {Button, FormControl, InputGroup} from "react-bootstrap";
 
 function Login() {
     const [credentials, setCredentials] = useState({ username: "", password: "" });
@@ -27,12 +27,11 @@ function Login() {
     return (
         <div onKeyDown={(key) => {if(key.key === "Enter"){signin()}}}>
             <h1>Signin</h1>
-            <InputGroup>
-                <label about={"username_input"}>Username</label>
+            <InputGroup className={"mb-4"}>
                 <input placeholder={"Username"} id={"username_input"} value={credentials.username} onChange={(e) => setCredentials({...credentials, username: e.target.value})}/>
-                <label about={"password_input"}>Password</label>
+
                 <input placeholder={"Password"} id={"password_input"} value={credentials.password} onChange={(e) => setCredentials({...credentials, password: e.target.value})}/>
-                <button onClick={signin}> Signin </button>
+                <Button onClick={signin}> Signin </Button>
                 <div>
                     <h3 style={showErr(err)}>Error Logging In</h3>
                 </div>
